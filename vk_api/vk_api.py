@@ -847,6 +847,7 @@ class VkApi(object):
         values=None,
         captcha_sid=None,
         captcha_key=None,
+        success_token=None,
         raw=False,
         with_cookies=False,
     ):
@@ -863,6 +864,9 @@ class VkApi(object):
 
         :param captcha_key: ответ капчи
         :type captcha_key: str
+
+        :param success_token: токен капчи с redirect_uri
+        :type success_token: str
 
         :param raw: при False возвращает `response['response']`
                     при True возвращает `response`
@@ -886,6 +890,8 @@ class VkApi(object):
         if captcha_sid and captcha_key:
             values['captcha_sid'] = captcha_sid
             values['captcha_key'] = captcha_key
+        if success_token:
+            values['success_token'] = success_token
 
         with self.lock:
             # Ограничение 3 запроса в секунду
@@ -923,7 +929,8 @@ class VkApi(object):
                         self.method,
                         (method,),
                         {'values': values, 'raw': raw, 'with_cookies': with_cookies},
-                        error.error['captcha_img']
+                        error.error['captcha_img'],
+                        redirect_uri=error.error.get('redirect_uri')
                     )
 
                 response = self.error_handlers[error.code](error)
