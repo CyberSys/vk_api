@@ -942,6 +942,7 @@ class VkApi(object):
         headers: t.Optional[t.Dict[str, t.Any]] = None,
         captcha_sid: t.Optional[str] = None,
         captcha_key: t.Optional[str] = None,
+        success_token: t.Optional[str] = None,
     ) -> t.Dict[str, t.Any]:
         """
         Вызов действия для https://login.vk.ru с обработкой капчи.
@@ -965,6 +966,9 @@ class VkApi(object):
             self.logger.info(f'Using captcha code: {captcha_sid}: {captcha_key}')
             values['captcha_sid'] = captcha_sid
             values['captcha_key'] = captcha_key
+        if success_token:
+            self.logger.info(f'Using captcha success_token: {success_token}')
+            values['success_token'] = success_token
 
         response = self.http.post(
             url=f'https://login.vk.ru/?act={action}',
@@ -981,6 +985,7 @@ class VkApi(object):
                 vk=self,
                 captcha_sid=response_dict['captcha_sid'],
                 url=response_dict['captcha_img'],
+                redirect_uri=response_dict.get('redirect_uri'),
                 func=self.vk_login_method,
                 kwargs={
                     'action': action,
